@@ -6,11 +6,25 @@ services:
       - "6379:6379"
     volumes:
       - /data:/data
-    restart: always
+    restart: 
+      always
+    networks:
+      - backend
 
   rate_limiter:
-    image: golang:1.23.0
     container_name: rate_limiter
     build:
       context: .
       dockerfile: Dockerfile
+    ports: 
+      - "8080:8080"
+    restart:
+      always
+    networks:
+      - backend
+    depends_on:
+      - redis
+
+networks:
+  backend:
+    driver: bridge

@@ -15,6 +15,11 @@ const (
 	interval = 10 * time.Second
 )
 
+var apiKeyMap = map[string]APIKeyLimit{
+	"api-key-1": {limit: 5, interval: 10 * time.Second},
+	"api-key-2": {limit: 10, interval: 10 * time.Second},
+}
+
 type RateLimiter struct {
 	apiKeyLimit map[string]APIKeyLimit
 	visitCount  map[string]int
@@ -40,11 +45,6 @@ func NewRateLimiter(limit int, interval time.Duration, apiKeyMap map[string]APIK
 
 func main() {
 	e := echo.New()
-
-	apiKeyMap := map[string]APIKeyLimit{
-		"api-key-1": {limit: 5, interval: 10 * time.Second},
-		"api-key-2": {limit: 10, interval: 10 * time.Second},
-	}
 
 	rl := NewRateLimiter(limit, interval, apiKeyMap)
 	e.Use(LoggingMiddleware)
@@ -85,6 +85,7 @@ func RateLimiterMiddleware(rl *RateLimiter) echo.MiddlewareFunc {
 					return c.String(http.StatusBadRequest, "Invalid API key")
 				}
 				if apiConf.count >= apiConf.limit {
+					fmt.Println("API key rate limit exceeded for token:", token)
 					rl.mu.Unlock()
 					return c.String(http.StatusTooManyRequests, "you have reached the maximum number of requests or actions allowed within a certain time frame")
 				}
@@ -98,6 +99,7 @@ func RateLimiterMiddleware(rl *RateLimiter) echo.MiddlewareFunc {
 			ip := c.RealIP()
 			rl.mu.Lock()
 			if rl.visitCount[ip] >= rl.limitation {
+				fmt.Println("IP rate limit exceeded for IP:", ip)
 				rl.mu.Unlock()
 				return c.String(http.StatusTooManyRequests, "you have reached the maximum number of requests or actions allowed within a certain time frame")
 			}
