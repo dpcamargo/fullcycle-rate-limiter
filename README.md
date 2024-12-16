@@ -54,7 +54,6 @@ O servidor web deve responder na porta 8080.
 - Execute o comando `docker-compose up -d` para subir o Redis e o servidor web
 - Faça uma requisição para `http://localhost:8080/`
   - Limites:
-    - IP: 3 requisições a cada 10 segundos
-    - Header API_KEY: `api-key-1`: 5 requisições a cada 10 segundos
-    - Header API_KEY: `api-key-2`: 10 requisições a cada 10 segundos
+    - IP: 3 requisições
+    - Header API_KEY: `api-key-1`: 10 requisições
 - `rate-limit.http` é um arquivo que contém exemplos de requisições para testar o rate limiter no VS Code com a extensão "REST Client" (https://marketplace.visualstudio.com/items?itemName=humao.rest-client) ou no Postman.
